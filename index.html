@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>shooters.lol — Wildlands</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+  <div id="brand" class="panel">shooters<span>.lol</span></div>
+  <div id="topstats">
+    <div class="stat panel"><b id="alive">12</b><small>Alive</small></div>
+    <div class="stat panel"><b id="coins">0</b><small>Coins</small></div>
+    <div class="stat panel"><b id="kills">0</b><small>Kills</small></div>
+  </div>
+  <div id="killfeed"></div><div id="bountyBanner">♛ BOUNTY TARGET · ELIMINATE THE BOSS</div><div id="bossArrowLayer"></div><div id="eventBanner">WEATHER EVENT</div>
+  <div id="mobilehelp">WASD move · Mouse aim · Click shoot · E loot</div>
+  <div id="leftbottom"><div id="zoneclock" class="panel">☢ SAFE ZONE <b id="zoneTime">02:00</b></div><canvas id="minimap" width="180" height="180"></canvas></div>
+  <div id="bottomcenter"><div id="bars" class="panel">
+    <div><div class="barlabel"><span>HEALTH</span><span id="healthnum">100 / 100</span></div><div class="bar"><div class="fill" id="healthfill"></div></div></div>
+    <div><div class="barlabel"><span>ARMOUR</span><span id="armornum">0</span></div><div class="bar"><div class="fill" id="armorfill"></div></div></div>
+  </div></div>
+  <div id="weaponbar">
+    <div class="slot active" data-slot="0"><span class="key">1</span><span class="emoji">🔫</span><span class="ammo" id="ammo0">12/48</span><span class="weaponname" id="weaponname0">M9</span></div>
+    <div class="slot" data-slot="1"><span class="key">2</span><span class="emoji">🔫</span><span class="ammo" id="ammo1">—</span><span class="weaponname" id="weaponname1">Empty</span></div>
+    <div class="slot" data-slot="2"><span class="key">3</span><span class="emoji">👊</span><span class="ammo" id="ammo2">∞</span><span class="weaponname" id="weaponname2">Fists</span></div>
+  </div>
+  <div id="crosshair"></div><div id="pickupPrompt"></div><div id="toast"></div>
+</div>
+<div id="overlay">
+  <div class="modal" id="mainmenu">
+    <div class="eyebrow">A browser survival shooter</div>
+    <h1 class="logo">shooters<span>.lol</span></h1>
+    <p class="sub">Drop into Wildlands. Scavenge weapons, outlast rival survivors, stay inside the safe zone, and collect coins to build your loadout. A new top-down survival experience built for the browser.</p>
+    <div class="buttons"><button class="btn" id="play">▶ PLAY WILDLANDS</button><button class="btn secondary" id="openShop">WEAPON SHOP · <span id="menuCoins">0</span> COINS</button><button class="btn secondary" id="openSettings">⚙ SETTINGS</button><button class="btn secondary" id="openMultiplayer">🌐 MULTIPLAYER</button></div>
+    <div class="helpgrid"><div><b>W A S D</b>Move around</div><div><b>MOUSE</b>Aim & shoot</div><div><b>E</b>Pick up loot</div><div><b>1 / 2 / 3</b>Switch weapon</div><div><b>R</b>Reload</div><div><b>ESC</b>Pause / menu</div></div>
+  </div>
+
+  <div class="modal" id="mapvotemenu" style="display:none">
+    <div class="eyebrow">Matchmaking · map vote</div><h2 style="margin:0;font-size:30px">Choose your drop zone</h2><p class="sub">Vote for the map. Bots cast votes too — the winning map loads before the match starts.</p>
+    <div id="mapChoices" class="mapchoices">
+      <button class="mapchoice selected" data-map="wildlands"><b>🌲 WILDLANDS</b><small>Green forests · cabins · rocks</small><span class="votes">0 votes</span></button>
+      <button class="mapchoice" data-map="dustbowl"><b>🏜️ DUSTBOWL</b><small>Sand · dry scrub · outposts</small><span class="votes">0 votes</span></button>
+      <button class="mapchoice" data-map="frostline"><b>❄ FROSTLINE</b><small>Cold terrain · icy ruins</small><span class="votes">0 votes</span></button>
+    </div><div class="buttons"><button class="btn" id="launchMatch">▶ START MATCH</button><button class="btn secondary" id="voteBack">← BACK</button></div>
+  </div>
+  <div class="modal" id="settingsmenu" style="display:none">
+    <div class="eyebrow">Tune your match</div><h2 style="margin:0;font-size:30px">Settings</h2>
+    <div id="settingsRows">
+      <label class="settingrow"><span>Effects volume</span><input id="volumeSetting" type="range" min="0" max="100" value="60"></label>
+      <label class="settingrow"><span>Screen shake</span><select id="shakeSetting"><option value="on">On</option><option value="off">Off</option></select></label>
+      <label class="settingrow"><span>Weather events</span><select id="weatherSetting"><option value="on">Enabled</option><option value="off">Disabled</option></select></label>
+      <label class="settingrow"><span>Visual quality</span><select id="qualitySetting"><option value="high">High</option><option value="low">Performance</option></select></label>
+    </div>
+    <div class="buttons"><button class="btn secondary" id="settingsBack">← BACK</button></div>
+  </div>
+  <div class="modal" id="shopmenu" style="display:none">
+    <div class="eyebrow">Loadout & progression</div><h2 style="margin:0;font-size:30px">Weapon shop</h2><p class="sub" style="margin-bottom:10px">Coins are saved in this browser. Earn 5 coins for every bot elimination.</p>
+    <div id="shopitems"></div><div class="buttons"><button class="btn secondary" id="shopBack">← BACK</button></div>
+  </div>
+
+  <div class="modal" id="multiplayermenu" style="display:none">
+    <div class="eyebrow">Play with friends · WebRTC</div><h2 style="margin:0;font-size:30px">Multiplayer</h2>
+    <p class="sub">Host a room and send your room code to a friend, or join their room. Both players must open the published HTTPS game link.</p>
+    <label class="settingrow"><span>Your player name</span><input id="playerName" maxlength="18" placeholder="Player" value="Player"></label>
+    <div class="buttons" style="margin-top:12px"><button class="btn" id="hostRoom">CREATE ROOM</button></div>
+    <label class="settingrow" style="margin-top:12px"><span>Friend's room code</span><input id="roomCode" maxlength="80" placeholder="Paste host code"></label>
+    <div class="buttons" style="margin-top:12px"><button class="btn" id="joinRoom">JOIN ROOM</button><button class="btn secondary" id="copyRoom" disabled>COPY MY CODE</button></div>
+    <p id="networkStatus" class="sub" style="margin-bottom:0">Offline · not connected</p>
+    <div class="buttons" style="margin-top:16px"><button class="btn secondary" id="multiBack">← BACK</button><button class="btn secondary" id="disconnectRoom">DISCONNECT</button></div>
+  </div>
+\n  <div class="modal" id="endmenu" style="display:none">
+    <div class="eyebrow">Match complete</div><h2 id="endTitle" style="font-size:34px;margin:0">Eliminated</h2><p id="endText" class="sub"></p><div class="buttons"><button class="btn" id="again">↻ PLAY AGAIN</button><button class="btn secondary" id="endShop">WEAPON SHOP</button><button class="btn secondary" id="endMenu">MAIN MENU</button></div>
+  </div>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
